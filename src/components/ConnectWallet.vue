@@ -1,9 +1,9 @@
 <template>
   <div class="connectWallet">
-    <button @click="showWallet" v-show="isConnected" class="button-connect">
-      {{ account.substr(0, 6) + '...' + account.substr(39, 3) }}
+    <button @click="showWallet" v-show="account" class="button-connect">
+      {{ account }}
     </button>
-    <button size="mini" @click="showWallet" v-show="!isConnected" class="button-connect">
+    <button size="mini" @click="showWallet" v-show="!account" class="button-connect">
       连接
     </button>
     <div v-show="isShowConnectStatus" class="connect-panel " @click="isShowConnectStatus=false;$emit('changeState')">
@@ -49,6 +49,7 @@ export default {
   props:['changeState'],
   data() {
     return {
+      isConnected:false,
       connectIdx: 0,
       connectArr: ['', 'MetaMask', 'WalletConnect', 'Fortmatic'],
       isShowConnectStatus: false,
@@ -57,10 +58,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters([
-      'isConnected',
-      'account'
-    ]),
+    account(){
+      return this.$store.state.account
+    }
   },
   created() {
     if(localStorage.getItem('wallet')=='mateMask'){
@@ -74,28 +74,7 @@ export default {
     async connectWallet(idx) {
       this.connectIdx = idx
       this.isLoading = true
-      // 检测chain
-      // window.ethereum.request({
-      //   method: 'wallet_addEthereumChain',
-      //   params: [{
-      //     chainId: "0x29a",
-      //     chainName: "Rainbow",
-      //     rpcUrls: [
-      //       "https://rpcapi.rainbow.kim",
-      //     ],
-      //     iconUrls: [
-      //       "https://uni-rb.oss-ap-southeast-1.aliyuncs.com/images/rblogo.png"
-      //     ],
-      //     blockExplorerUrls: [
-      //       "https://rainbow.kim"
-      //     ],
-      //     nativeCurrency: {
-      //       name: "RBS",
-      //       symbol: "RBS",
-      //       decimals: 18
-      //     }
-      //   }]
-      // })
+
       // 各类钱包provider生成
       if (idx == 1) {
         localStorage.setItem('wallet', 'mateMask')
@@ -107,12 +86,14 @@ export default {
           // Handle the new accounts, or lack thereof.
           // "accounts" will always be an array, but it can be empty.
           this.$store.commit('app/SET_ACCOUNT', accounts[0])
+
         });
 
         //注册获取信息
         this.registerWeb3().then(() => {
           this.isShowConnect = false
           this.$emit('changeState')
+          console.log(this.$store.state)
         })
         this.isShowConnect = false
         this.$emit('changeState')
@@ -144,7 +125,7 @@ export default {
       }
     },
     registerWeb3(provider) {
-      return this.$store.dispatch("app/registerWeb3",provider)
+      return this.$store.dispatch("registerWeb3",provider)
     },
     showWallet() {
       this.$emit('changeState',true)
@@ -168,7 +149,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "~@/styles/variables.scss";
 .connectWallet {
   color: #2c3e50;
   display: flex;
@@ -179,7 +159,7 @@ export default {
     width: 100px;
     height: 30px;
     opacity: 1;
-    background: linear-gradient(270deg, $purple, #ec0b6a);
+    background: linear-gradient(270deg, purple, #ec0b6a);
     border-radius: 10px;
     color: white;
     border: none;

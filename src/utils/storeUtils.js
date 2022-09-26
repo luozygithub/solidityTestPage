@@ -1,7 +1,7 @@
 require('dotenv').config();
 const fs = require('fs');
 
-const buildDir = "./abi/";
+const buildDir = "./src/abi/";
 
 const writeDir = "./src/store/modules/abisMethods/"
 const addressDir = "./src/utils/"

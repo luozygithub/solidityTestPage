@@ -1,6 +1,8 @@
 <template>
   <div class="test">
-    <RainbowHeader></RainbowHeader>
+    <div class="header">
+      <ConnectWallet></ConnectWallet>
+    </div>
     <div class="contract">
       <div class="contract-nav">
         <div class="contract-nav-item"  @click="activeName = 'Contract'" >
@@ -35,7 +37,7 @@
               <div class="inputs">
                 <div class="input" v-for="(input,inputindex) in abi.inputs" :key="inputindex">
                   {{ input }}:
-                  <el-input v-model="abi.values[inputindex]" placeholder="请输入内容"></el-input>
+                  <input v-model="abi.values[inputindex]" placeholder="请输入内容"/>
                 </div>
               </div>
               <div class="button" @click="handleClick({name:item.name,abi})">
@@ -51,12 +53,11 @@
 </template>
 
 <script>
-import RainbowHeader from "@/components/RainbowHeader";
-import {getContractList} from "@/api/test";
-
+// import {getContractList} from "@/api/test";
+import ConnectWallet from "../components/ConnectWallet"
 export default {
   name: "testSolidity",
-  components: {RainbowHeader},
+  components: {ConnectWallet},
   data() {
     return {
       activeName:"RBB",
@@ -68,19 +69,22 @@ export default {
     }
   },
   created() {
-    getContractList().then(res => {
-      this.addressArr = res
-    })
-    const files = require.context('../../abi/', false, /.json$/).keys();
+    // getContractList().then(res => {
+    //   this.addressArr = res
+    // })
+    this.addressArr = []
+    const files = require.context('../abi/', false, /.json$/).keys();
 
     for (let i = 0; i < files.length; i++) {
       let name = files[i].substr(2, files[i].length - 7)
 
-      let networks = require("../../abi/" + name + ".json").networks["1234"]
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      let networks = require("../abi/" + name + ".json").networks["1234"]
       if (!networks) {
         continue
       }
-      let contracntAbi = require("../../abi/" + name + ".json").abi
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      let contracntAbi = require("../abi/" + name + ".json").abi
 
       let abiArr = []
       for (let j = 0; j < contracntAbi.length; j++) {
@@ -110,7 +114,7 @@ export default {
         }
       }
     },
- 
+
     handleClick({name, abi}) {
       let path = name + "/" + abi.name
       console.log(path)
